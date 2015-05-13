@@ -7,10 +7,15 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Transactions;
 using System.Xml.Linq;
+#if DNXCORE50
+using System.Net.Http;
+#else
+using System.Net;
+
+#endif
 
 namespace Breeze.ContextProvider
 {
@@ -44,7 +49,7 @@ namespace Breeze.ContextProvider
             }
         }
 
-        public static String XDocToJson(XDocument xDoc)
+        public static string XDocToJson(XDocument xDoc)
         {
 
             var sw = new StringWriter();
@@ -159,7 +164,7 @@ namespace Breeze.ContextProvider
             return jsonSerializer;
         }
 
-        #region abstract and virtual methods
+#region abstract and virtual methods
 
         /// <summary>
         /// Should only be called from BeforeSaveEntities and AfterSaveEntities.
@@ -187,7 +192,7 @@ namespace Breeze.ContextProvider
             return conn.BeginTransaction(isolationLevel);
         }
 
-        protected abstract String BuildJsonMetadata();
+        protected abstract string BuildJsonMetadata();
 
         protected abstract void SaveChangesCore(SaveWorkState saveWorkState);
 
@@ -201,7 +206,7 @@ namespace Breeze.ContextProvider
             return new EntityInfo();
         }
 
-        public EntityInfo CreateEntityInfo(Object entity, EntityState entityState = EntityState.Added)
+        public EntityInfo CreateEntityInfo(object entity, EntityState entityState = EntityState.Added)
         {
             var ei = CreateEntityInfo();
             ei.Entity = entity;
@@ -268,14 +273,14 @@ namespace Breeze.ContextProvider
             }
         }
 
-        #endregion
+#endregion
 
         protected internal EntityInfo CreateEntityInfoFromJson(dynamic jo, Type entityType)
         {
             var entityInfo = CreateEntityInfo();
 
             entityInfo.Entity = JsonSerializer.Deserialize(new JTokenReader(jo), entityType);
-            entityInfo.EntityState = (EntityState)Enum.Parse(typeof(EntityState), (String)jo.entityAspect.entityState);
+            entityInfo.EntityState = (EntityState)Enum.Parse(typeof(EntityState), (string)jo.entityAspect.entityState);
             entityInfo.ContextProvider = this;
 
 
@@ -290,7 +295,7 @@ namespace Breeze.ContextProvider
             return entityInfo;
         }
 
-        private Dictionary<String, Object> JsonToDictionary(dynamic json)
+        private Dictionary<string, object> JsonToDictionary(dynamic json)
         {
             if (json == null) return null;
             var jprops = ((System.Collections.IEnumerable)json).Cast<JProperty>();
@@ -308,7 +313,7 @@ namespace Breeze.ContextProvider
             return dict;
         }
 
-        protected internal Type LookupEntityType(String entityTypeName)
+        protected internal Type LookupEntityType(string entityTypeName)
         {
             var delims = new string[] { ":#" };
             var parts = entityTypeName.Split(delims, StringSplitOptions.None);
@@ -331,10 +336,11 @@ namespace Breeze.ContextProvider
         }
 
         protected static Lazy<Type> KeyGeneratorType = new Lazy<Type>(() => {
-            var typeCandidates = BreezeConfig.ProbeAssemblies.Concat(new Assembly[] { typeof(IKeyGenerator).Assembly })
+            var typeCandidates = BreezeConfig.ProbeAssemblies.Concat(new Assembly[] { typeof(IKeyGenerator).GetTypeInfo().Assembly })
              .SelectMany(a => a.GetTypes()).ToList();
-            var generatorTypes = typeCandidates.Where(t => typeof(IKeyGenerator).IsAssignableFrom(t) && !t.IsAbstract)
-              .ToList();
+            var generatorTypes = typeCandidates
+                .Where(t => typeof(IKeyGenerator).IsAssignableFrom(t) && !t.GetTypeInfo().IsAbstract)
+                .ToList();
             if (generatorTypes.Count == 0)
             {
                 throw new Exception("Unable to locate a KeyGenerator implementation.");
@@ -357,8 +363,8 @@ namespace Breeze.ContextProvider
         public SaveWorkState(ContextProvider contextProvider, JArray entitiesArray)
         {
             ContextProvider = contextProvider;
-            var jObjects = entitiesArray.Select(jt => (dynamic)jt).ToList();
-            var groups = jObjects.GroupBy(jo => (String)jo.entityAspect.entityTypeName).ToList();
+            var JObjects = entitiesArray.Select(jt => (dynamic)jt).ToList();
+            var groups = JObjects.GroupBy(jo => (string)jo.entityAspect.entityTypeName).ToList();
 
             EntityInfoGroups = groups.Select(g => {
                 var entityType = ContextProvider.LookupEntityType(g.Key);
@@ -405,7 +411,7 @@ namespace Breeze.ContextProvider
             WasUsed = true; // try to prevent reuse in subsequent SaveChanges
             if (EntityErrors != null)
             {
-                return new SaveResult() { Errors = EntityErrors.Cast<Object>().ToList() };
+                return new SaveResult() { Errors = EntityErrors.Cast<object>().ToList() };
             }
             else
             {
@@ -418,7 +424,7 @@ namespace Breeze.ContextProvider
     public class SaveOptions
     {
         public bool AllowConcurrentSaves { get; set; }
-        public Object Tag { get; set; }
+        public object Tag { get; set; }
     }
 
     public interface IKeyGenerator
@@ -433,15 +439,15 @@ namespace Breeze.ContextProvider
         {
             _entityInfo = entityInfo;
         }
-        public Object Entity
+        public object Entity
         {
             get { return _entityInfo.Entity; }
         }
-        public Object TempValue
+        public object TempValue
         {
             get { return _entityInfo.AutoGeneratedKey.TempValue; }
         }
-        public Object RealValue
+        public object RealValue
         {
             get { return _entityInfo.AutoGeneratedKey.RealValue; }
             set { _entityInfo.AutoGeneratedKey.RealValue = value; }
@@ -473,12 +479,12 @@ namespace Breeze.ContextProvider
         }
 
         public ContextProvider ContextProvider { get; internal set; }
-        public Object Entity { get; internal set; }
+        public object Entity { get; internal set; }
         public EntityState EntityState { get; set; }
-        public Dictionary<String, Object> OriginalValuesMap { get; set; }
+        public Dictionary<string, object> OriginalValuesMap { get; set; }
         public bool ForceUpdate { get; set; }
         public AutoGeneratedKey AutoGeneratedKey { get; set; }
-        public Dictionary<String, Object> UnmappedValuesMap { get; set; }
+        public Dictionary<string, object> UnmappedValuesMap { get; set; }
     }
 
     public enum AutoGeneratedKeyType
@@ -490,17 +496,17 @@ namespace Breeze.ContextProvider
 
     public class AutoGeneratedKey
     {
-        public AutoGeneratedKey(Object entity, dynamic autoGeneratedKey)
+        public AutoGeneratedKey(object entity, dynamic autoGeneratedKey)
         {
             Entity = entity;
             PropertyName = autoGeneratedKey.propertyName;
-            AutoGeneratedKeyType = (AutoGeneratedKeyType)Enum.Parse(typeof(AutoGeneratedKeyType), (String)autoGeneratedKey.autoGeneratedKeyType);
+            AutoGeneratedKeyType = (AutoGeneratedKeyType)Enum.Parse(typeof(AutoGeneratedKeyType), (string)autoGeneratedKey.autoGeneratedKeyType);
             // TempValue and RealValue will be set later. - TempValue during Add, RealValue after save completes.
         }
 
-        public Object Entity;
+        public object Entity;
         public AutoGeneratedKeyType AutoGeneratedKeyType;
-        public String PropertyName;
+        public string PropertyName;
         public PropertyInfo Property
         {
             get
@@ -513,24 +519,24 @@ namespace Breeze.ContextProvider
                 return _property;
             }
         }
-        public Object TempValue;
-        public Object RealValue;
+        public object TempValue;
+        public object RealValue;
         private PropertyInfo _property;
     }
 
     // Types returned to javascript as Json.
     public class SaveResult
     {
-        public List<Object> Entities;
+        public List<object> Entities;
         public List<KeyMapping> KeyMappings;
-        public List<Object> Errors;
+        public List<object> Errors;
     }
 
     public class KeyMapping
     {
-        public String EntityTypeName;
-        public Object TempValue;
-        public Object RealValue;
+        public string EntityTypeName;
+        public object TempValue;
+        public object RealValue;
     }
 
     public class SaveError
@@ -539,12 +545,12 @@ namespace Breeze.ContextProvider
         {
             EntityErrors = entityErrors.ToList();
         }
-        public SaveError(String message, IEnumerable<EntityError> entityErrors)
+        public SaveError(string message, IEnumerable<EntityError> entityErrors)
         {
             Message = message;
             EntityErrors = entityErrors.ToList();
         }
-        public String Message { get; protected set; }
+        public string Message { get; protected set; }
         public List<EntityError> EntityErrors { get; protected set; }
     }
 
@@ -556,7 +562,7 @@ namespace Breeze.ContextProvider
             StatusCode = HttpStatusCode.Forbidden;
         }
 
-        public EntityErrorsException(String message, IEnumerable<EntityError> entityErrors)
+        public EntityErrorsException(string message, IEnumerable<EntityError> entityErrors)
           : base(message)
         {
             EntityErrors = entityErrors.ToList();
@@ -571,10 +577,10 @@ namespace Breeze.ContextProvider
     public class EntityError
     {
 
-        public String ErrorName;
-        public String EntityTypeName;
-        public Object[] KeyValues;
-        public String PropertyName;
+        public string ErrorName;
+        public string EntityTypeName;
+        public object[] KeyValues;
+        public string PropertyName;
         public string ErrorMessage;
 
     }
@@ -618,7 +624,7 @@ namespace Breeze.ContextProvider
             {
                 return s;
             }
-            string str = char.ToLower(s[0], CultureInfo.InvariantCulture).ToString((IFormatProvider)CultureInfo.InvariantCulture);
+            var str = char.ToLowerInvariant(s[0]).ToString();
             if (s.Length > 1)
             {
                 str = str + s.Substring(1);

@@ -1,16 +1,4 @@
-﻿
-namespace Breeze.ContextProvider
-{
-    /// <summary>
-    /// Placeholder for the fact that System.Transactions doesn't exist in Core but Breeze.ContextProvider references stuff here
-    /// </summary>
-    internal class SystemTransactions
-    {
-    }
-}
-
-// Missing from ASP.NET 5 both DNX451 and DNXCore5
-
+﻿// Missing from ASP.NET 5 both DNX451 and DNXCore5
 namespace System.Transactions
 {
     // Summary:

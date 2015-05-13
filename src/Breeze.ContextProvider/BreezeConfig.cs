@@ -9,35 +9,53 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 #if !DNXCORE50
 using System.Threading;
-using System.Collections.ObjectModel;
 #endif
 
 namespace Breeze.ContextProvider
 {
     public class BreezeConfig
     {
+
         public static BreezeConfig Instance
         {
             get
             {
                 lock (__lock)
                 {
-#if DNXCORE50
+#if DNX451
+                    // WB THIS isn't going to work in CORE the way that it will in normal DotNet because
+                    // core lacks the AppDomain and there is no assembly probing as far as I know.
+                    // At lease in short run can set BreezeConfig.ProbeAssemblies in the StartUp.cs
+
+                    // TODO: Ask Jay why the handler is added here and not inside the `if` block
+                    // I added the next line because, w/o it, every call to Instance adds another handler!
+                    AppDomain.CurrentDomain.AssemblyLoad -= CurrentDomain_AssemblyLoad; 
+                    AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+#endif               
                     if (__instance == null)
                     {
-                        // WB THIS isn't going to work in CORE the way that it will in normal DotNet because
-                        // no AppDomain and no assembly probing as far as I know.
-                        // so just create instance of this class for now.
-                        __instance = new BreezeConfig();
+                        var typeCandidates = ProbeAssemblies.SelectMany(a => GetTypes(a));
+                        var types = typeCandidates.Where(t => typeof(BreezeConfig).IsAssignableFrom(t) && !t.GetTypeInfo().IsAbstract).ToList();
+
+                        if (types.Count == 0)
+                        {
+                            __instance = new BreezeConfig();
+                        }
+                        else if (types.Count == 1)
+                        {
+                            __instance = (BreezeConfig)Activator.CreateInstance(types[0]);
+                        }
+                        else
+                        {
+                            throw new Exception(
+                              "More than one BreezeConfig implementation was found in the currently loaded assemblies - limit is one.");
+                        }
                     }
-#else
-                    GetBreezeConfigInstance();
-#endif
                     return __instance;
                 }
             }
-        }
 
+        }
         public JsonSerializerSettings GetJsonSerializerSettings()
         {
             lock (__lock)
@@ -149,6 +167,10 @@ namespace Breeze.ContextProvider
         private static ReadOnlyCollection<Assembly> __probeAssemblies = new ReadOnlyCollection<Assembly>(new List<Assembly>());
 
 #if DNXCORE50
+        // Can't probe for assemblies in CORE
+        // Make it possible to register the assemblies in StartUp.cs
+        // by preparing a list of them there and then
+        //     BreezeConfig.ProbeAssemblies = theProbeAssemblyCollection;
         public static ReadOnlyCollection<Assembly> ProbeAssemblies
         {
             get
@@ -167,32 +189,6 @@ namespace Breeze.ContextProvider
             }
         }
 #else
-     // WB THIS isn't going to work in CORE the way that it will in normal DotNet because
-     // no AppDomain and no assembly probing as far as I know.
-     private static void GetBreezeConfigInstance() {
-            AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
-            if (__instance == null)
-            {
-                var typeCandidates = ProbeAssemblies.SelectMany(a => GetTypes(a));
-                var types = typeCandidates.Where(t => typeof(BreezeConfig).IsAssignableFrom(t) && !t.GetTypeInfo().IsAbstract).ToList();
-
-                if (types.Count == 0)
-                {
-                    __instance = new BreezeConfig();
-                }
-                else if (types.Count == 1)
-                {
-                    __instance = (BreezeConfig)Activator.CreateInstance(types[0]);
-                }
-                else
-                {
-                    throw new Exception(
-                        "More than one BreezeConfig implementation was found in the currently loaded assemblies - limit is one.");
-                }
-            }
-        }
-
-
         public static ReadOnlyCollection<Assembly> ProbeAssemblies
         {
             get

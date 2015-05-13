@@ -154,7 +154,7 @@ namespace Breeze.ContextProvider
 
         private Validator BuildValidator(Dictionary<string, object> data)
         {
-            var name = data["name"];
+            var name = data["name"] as string;
             Validator v;
             if (name == "required") v = new RequiredValidator();
             else if (name == "maxLength") v = new MaxLengthValidator();
