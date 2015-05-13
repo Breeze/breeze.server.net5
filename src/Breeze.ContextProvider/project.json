@@ -10,7 +10,8 @@
         "Newtonsoft.Json": "6.0.6",
         "System.Diagnostics.TraceSource": "4.0.0-beta-22905",
         "System.Xml.ReaderWriter": "4.0.10-beta-22821",
-        "System.Xml.XDocument": "4.0.10-beta-22816"
+        "System.Xml.XDocument": "4.0.10-beta-22816",
+        "DotNetShim": "1.0.0-*"
     },
 
     "frameworks": {
@@ -25,7 +26,7 @@
                 "System.Data.Common": "4.0.0-beta-*",
                 "System.Globalization": "4.0.10-beta-*",
                 "System.Linq": "4.0.0-beta-22816",
-                "System.Net.Http":  "4.0.0-beta-*",
+                "System.Net.Http": "4.0.0-beta-*",
                 "System.Runtime.Extensions": "4.0.0-beta-*",
                 "System.Reflection.TypeExtensions": "4.0.0-beta-*",
                 "System.Text.RegularExpressions": "4.0.10-beta-*",

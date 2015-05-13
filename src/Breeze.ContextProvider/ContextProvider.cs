@@ -170,6 +170,11 @@ namespace Breeze.ContextProvider
         /// Should only be called from BeforeSaveEntities and AfterSaveEntities.
         /// </summary>
         /// <returns>Open DbConnection used by the ContextProvider's implementation</returns>
+        /// <remarks>
+        /// WB: THIS IS A RAT HOLE.  GET RID OF IT
+        /// Most of its inner parts refer to things that cannot be in .NET CORE
+        /// and won't be in EF7
+        /// </remarks>
         public abstract IDbConnection GetDbConnection();
 
         /// <summary>
