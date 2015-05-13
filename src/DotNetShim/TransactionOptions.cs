@@ -1,7 +1,6 @@
-﻿// Missing from ASP.NET 5 both DNX451 and DNXCore5
-namespace System.Transactions
+﻿namespace System.Transactions
 {
-
+#if DNXCORE50
     // Summary:
     //     Contains additional information that specifies transaction behaviors.
     //     WB: This will never actually work. Kept as much of definition as needed to get this to compile
@@ -77,4 +76,5 @@ namespace System.Transactions
         //     A 32-bit signed integer hash code.
         //public override int GetHashCode();
     }
+#endif
 }

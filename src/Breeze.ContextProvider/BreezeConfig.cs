@@ -7,9 +7,6 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-#if !DNXCORE50
-using System.Threading;
-#endif
 
 namespace Breeze.ContextProvider
 {
@@ -208,7 +205,7 @@ namespace Breeze.ContextProvider
 
         static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
-            Interlocked.Increment(ref __assemblyLoadedCount);
+            System.Threading.Interlocked.Increment(ref __assemblyLoadedCount);
         }
         private static int __assemblyCount = 0;
         private static int __assemblyLoadedCount = 0;

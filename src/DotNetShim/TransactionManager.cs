@@ -1,7 +1,6 @@
-﻿// Missing from ASP.NET 5 both DNX451 and DNXCore5
-namespace System.Transactions
+﻿namespace System.Transactions
 {
-
+#if DNXCORE50
     // Summary:
     //     Contains methods used for transaction management. This class cannot be inherited.
     //     WB: Only including the method referenced here in TransactionSettings.cs
@@ -87,4 +86,5 @@ namespace System.Transactions
         //public static Enlistment Reenlist(Guid resourceManagerIdentifier, byte[] recoveryInformation, IEnlistmentNotification enlistmentNotification);
 
     }
+#endif
 }

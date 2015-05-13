@@ -1,7 +1,4 @@
-﻿
-using System.Data;
-
-namespace System.Data
+﻿namespace System.Data
 {
 #if DNXCORE50
     // Summary:

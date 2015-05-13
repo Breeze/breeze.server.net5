@@ -1,11 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Linq.Expressions;
-using System.Diagnostics;
 using System.Text;
 
 namespace Breeze.ContextProvider
@@ -164,9 +162,8 @@ namespace Breeze.ContextProvider
             }
         }
 
-        // TypeCode does not exist in DotNet.Core
+        // Type.GetTypeCode seems to be missing from both dnx451 an dnxcore50
         // This lookup method was copied from PortableLibraryThunks\Internal\PortableLibraryThunks\System\TypeThunks.cs
-        // but returns the integer value equivalent to its TypeCode enum.
         private static TypeCode GetTypeCode(Type type)
         {
             if (type == null)

@@ -1,6 +1,4 @@
-﻿using System.Transactions;
-
-namespace System.Data
+﻿namespace System.Data
 {
 #if DNXCORE50
     // Summary:

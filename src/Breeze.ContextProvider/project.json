@@ -1,23 +1,32 @@
-﻿{
+{
     "version": "1.0.0-*",
-    "description": "",
-    "authors": [ "" ],
-    "tags": [ "" ],
-    "projectUrl": "",
-    "licenseUrl": "",
+    "description": "Base context types for Breeze ASP.NET 5 servers",
+    "authors": [ "Ward Bell", "Jay Traband" ],
+    "tags": [ "breeze" ],
+    "projectUrl": "https://github.com/Breeze/breeze.server.net5",
+    "licenseUrl": "https://github.com/Breeze/breeze.server.net5/blob/master/LICENSE",
+    "copyright": "Copyright 2015 IdeaBlade, Inc.  All Rights Reserved.",
 
     "dependencies": {
         "Newtonsoft.Json": "6.0.6",
+        "System.Data.Common": "4.0.0-beta-22911",
         "System.Diagnostics.TraceSource": "4.0.0-beta-22905",
         "System.Xml.ReaderWriter": "4.0.10-beta-22821",
         "System.Xml.XDocument": "4.0.10-beta-22816",
-        "DotNetShim": "1.0.0-*"
+        "DotNetShim": "1.0.0-*",
+        "System.ComponentModel.TypeConverter": "4.0.0-beta-22816",
+        "System.ComponentModel.Annotations": "4.0.10-beta-22816",
+        "System.Runtime.Serialization.Primitives": "4.0.10-beta-*",
+        "System.Security.Cryptography.Hashing": "4.0.0-beta-*"
     },
 
     "frameworks": {
         "dnx451": {
             "frameworkAssemblies": {
-                "System.Data": ""
+                "System.Data": "",
+                "System.Runtime.Serialization": "",
+                "System.Transactions": "",
+                "System.Xml":  ""
             }
         },
         "dnxcore50": {

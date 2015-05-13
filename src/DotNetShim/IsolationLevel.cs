@@ -1,6 +1,6 @@
-﻿// Missing from ASP.NET 5 both DNX451 and DNXCore5
-namespace System.Transactions
+﻿namespace System.Transactions
 {
+#if DNXCORE50
     // Summary:
     //     Specifies the isolation level of a transaction.
     public enum IsolationLevel
@@ -39,4 +39,5 @@ namespace System.Transactions
         //     level cannot be determined. An exception is thrown if this value is set.
         Unspecified = 6,
     }
+#endif
 }

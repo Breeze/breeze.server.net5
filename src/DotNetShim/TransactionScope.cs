@@ -1,6 +1,6 @@
-﻿// Missing from ASP.NET 5 both DNX451 and DNXCore5
-namespace System.Transactions
+﻿namespace System.Transactions
 {
+#if DNXCORE50
     // Summary:
     //     Makes a code block transactional. This class cannot be inherited.
     //     WB: Empty class. This will never actually work. Kept as much of definition as needed to get this to compile
@@ -164,4 +164,5 @@ namespace System.Transactions
         //     operations within the scope are done without an ambient transaction context.
         Suppress = 2,
     }
+#endif
 }
